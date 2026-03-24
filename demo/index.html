@@ -124,7 +124,7 @@
     <script type="module">
       import { ChunkScrollTable } from "../dist/index.js";
 
-      // --- Fake-Daten generieren ---
+      // --- Generate fake data ---
       const TOTAL = 10000;
       const fakeData = [];
       const names = [
@@ -157,7 +157,7 @@
         return { data, totalCount: TOTAL };
       }
 
-      // --- Tabelle erstellen ---
+      // --- Create table ---
       const table = new ChunkScrollTable({
         container: "#table-container",
         columns: [
@@ -167,7 +167,7 @@
           {
             key: "date",
             header: "Date",
-            render: (val) => new Date(val).toLocaleDateString("de-CH"),
+            render: (val) => new Date(val).toLocaleDateString("en-US"),
           },
           {
             key: "status",
@@ -176,7 +176,7 @@
           },
         ],
         fetchData: fakeFetch,
-        chunkSize: 200, // Klein damit man Chunk-Wechsel sieht
+        chunkSize: 200, // Small so you can see chunk transitions
         rowHeight: 50,
         buttons: {
           first: "#btn-first",
