@@ -1,7 +1,16 @@
 {
   "name": "chunk-scroll-table",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Lightweight virtual table with chunk-based server-side loading, caching, prefetching, and button navigation.",
+  "author": "NikitaDon",
+  "homepage": "https://github.com/NikitaDon/chunk-scroll-table#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NikitaDon/chunk-scroll-table.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NikitaDon/chunk-scroll-table/issues"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",

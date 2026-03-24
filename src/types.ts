@@ -45,6 +45,9 @@ export interface ChunkScrollTableOptions<T = any> {
   loadingDelay?: number;
   /** Text displayed when no data is available (default: 'No data found.') */
   noDataText?: string;
+  /** Callback when a fetch error occurs (e.g. server offline).
+   *  If not provided, errors are logged to console.error. */
+  onError?: (error: unknown) => void;
 }
 
 /** Navigation button references (DOM elements or CSS selectors) */

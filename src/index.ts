@@ -10,6 +10,7 @@ export class ChunkScrollTable<T = any> {
   private currentIndex: number = 0;
   private visibleCount: number = 15;
   private onLoading?: (isLoading: boolean) => void;
+  private onError: (error: unknown) => void;
   private loadingDelay: number;
   private resizeHandler: (() => void) | null = null;
   private renderGeneration: number = 0;
@@ -23,6 +24,7 @@ export class ChunkScrollTable<T = any> {
     if (!container) throw new Error(`Container not found: ${options.container}`);
 
     this.onLoading = options.onLoading;
+    this.onError = options.onError ?? ((e) => console.error("[ChunkScrollTable]", e));
     this.loadingDelay = options.loadingDelay ?? 120;
 
     // Initialize modules
@@ -123,7 +125,13 @@ export class ChunkScrollTable<T = any> {
     this.currentIndex = newIndex;
     this.clampIndex();
     const moved = this.currentIndex !== before;
-    await this.renderView();
+    try {
+      await this.renderView();
+    } catch (e) {
+      // Revert index on error so the table stays in a consistent state
+      this.currentIndex = before;
+      this.onError(e);
+    }
     return moved;
   }
 
