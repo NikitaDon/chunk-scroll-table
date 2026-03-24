@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>chunk-scroll-table Demo</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: sans-serif;
+        padding: 20px;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      h1 {
+        margin-bottom: 10px;
+        font-size: 1.4em;
+      }
+
+      .main {
+        display: flex;
+        flex: 1;
+        gap: 10px;
+        min-height: 0;
+      }
+
+      #table-container {
+        flex: 1;
+        border: 1px solid #ccc;
+        overflow: hidden;
+      }
+      #table-container table {
+        font-size: 14px;
+      }
+      #table-container thead th {
+        background: #333;
+        color: white;
+        padding: 10px;
+        text-align: left;
+      }
+      #table-container tbody td {
+        padding: 8px 10px;
+        border-bottom: 1px solid #eee;
+      }
+      #table-container tbody tr:hover {
+        background: #f5f5f5;
+      }
+
+      .nav-buttons {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 6px;
+        padding: 0 4px;
+      }
+      .nav-buttons button {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: white;
+      }
+      .nav-buttons button:hover:not(:disabled) {
+        background: #eee;
+      }
+      .nav-buttons button:disabled {
+        opacity: 0.3;
+        cursor: default;
+      }
+      .gap {
+        height: 16px;
+      }
+
+      #spinner {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 20px 30px;
+        border-radius: 8px;
+        font-size: 18px;
+        z-index: 100;
+      }
+
+      .info {
+        margin-top: 10px;
+        color: #666;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>chunk-scroll-table Demo</h1>
+
+    <div class="main">
+      <div id="table-container"></div>
+      <div class="nav-buttons">
+        <button id="btn-first" title="First">⏮</button>
+        <button id="btn-prev-page" title="Page Up">⏪</button>
+        <button id="btn-prev-one" title="Up One">🔼</button>
+        <div class="gap"></div>
+        <button id="btn-next-one" title="Down One">🔽</button>
+        <button id="btn-next-page" title="Page Down">⏩</button>
+        <button id="btn-last" title="Last">⏭</button>
+      </div>
+    </div>
+
+    <div id="spinner">Loading...</div>
+    <p class="info">
+      10'000 fake rows, chunkSize=20, 200ms simulated server delay. Try holding
+      the arrow buttons!
+    </p>
+
+    <script type="module">
+      import { ChunkScrollTable } from "../dist/index.js";
+
+      // --- Fake-Daten generieren ---
+      const TOTAL = 10000;
+      const fakeData = [];
+      const names = [
+        "Alice",
+        "Bob",
+        "Charlie",
+        "Diana",
+        "Eve",
+        "Frank",
+        "Grace",
+        "Hank",
+      ];
+      const domains = ["example.com", "test.org", "demo.net"];
+
+      for (let i = 0; i < TOTAL; i++) {
+        const name = names[i % names.length];
+        fakeData.push({
+          id: i + 1,
+          name: `${name} #${i + 1}`,
+          email: `${name.toLowerCase()}${i}@${domains[i % domains.length]}`,
+          date: new Date(2025, 0, 1, 0, 0, 0, 0).getTime() + i * 60000,
+          status: Math.random() > 0.1 ? 200 : 400,
+        });
+      }
+
+      // --- Simulated server fetch (200ms delay) ---
+      async function fakeFetch(offset, count) {
+        await new Promise((r) => setTimeout(r, 200));
+        const data = fakeData.slice(offset, offset + count);
+        return { data, totalCount: TOTAL };
+      }
+
+      // --- Tabelle erstellen ---
+      const table = new ChunkScrollTable({
+        container: "#table-container",
+        columns: [
+          { key: "id", header: "#", className: "col-id" },
+          { key: "name", header: "Name" },
+          { key: "email", header: "E-Mail" },
+          {
+            key: "date",
+            header: "Date",
+            render: (val) => new Date(val).toLocaleDateString("de-CH"),
+          },
+          {
+            key: "status",
+            header: "Status",
+            render: (val) => (val === 200 ? "✅" : "❌"),
+          },
+        ],
+        fetchData: fakeFetch,
+        chunkSize: 200, // Klein damit man Chunk-Wechsel sieht
+        rowHeight: 50,
+        buttons: {
+          first: "#btn-first",
+          prevPage: "#btn-prev-page",
+          prevOne: "#btn-prev-one",
+          nextOne: "#btn-next-one",
+          nextPage: "#btn-next-page",
+          last: "#btn-last",
+        },
+        onLoading: (loading) => {
+          document.getElementById("spinner").style.display = loading
+            ? "block"
+            : "none";
+        },
+      });
+
+      table.load();
+    </script>
+  </body>
+</html>
