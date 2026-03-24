@@ -118,6 +118,8 @@ The library handles everything else: caching, prefetching, chunk management, and
 | `onLoading` | `(isLoading: boolean) => void` | – | Called when loading state changes |
 | `loadingDelay` | `number` | `120` | Delay in ms before `onLoading(true)` fires |
 | `noDataText` | `string` | `'No data found.'` | Shown when dataset is empty |
+| `onError` | `(error: unknown) => void` | `console.error` | Called when a fetch error occurs |
+| `onIndexChange` | `(index: number) => void` | – | Called after each render with the current index |
 
 ### Column Definition
 
@@ -147,9 +149,26 @@ All buttons are optional. Provide the ones you need:
 
 | Method | Description |
 |---|---|
-| `table.load()` | Load initial data and render the table |
+| `table.load(startIndex?)` | Load data and render. Optionally start at a given row index (default: 0) |
 | `table.refresh(newFetchData?)` | Reload data (e.g. after a filter change) |
 | `table.destroy()` | Remove all event listeners and clear the DOM |
+
+### Saving and Restoring Scroll Position
+
+Use `onIndexChange` to persist the current position and `load(startIndex)` to restore it:
+
+```ts
+const table = new ChunkScrollTable({
+  // ...
+  onIndexChange: (index) => {
+    localStorage.setItem('tableScrollPos', String(index));
+  },
+});
+
+// Restore saved position on page load
+const saved = Number(localStorage.getItem('tableScrollPos')) || 0;
+table.load(saved);
+```
 
 ---
 

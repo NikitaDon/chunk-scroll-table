@@ -48,6 +48,9 @@ export interface ChunkScrollTableOptions<T = any> {
   /** Callback when a fetch error occurs (e.g. server offline).
    *  If not provided, errors are logged to console.error. */
   onError?: (error: unknown) => void;
+  /** Callback when the current index changes (e.g. for persisting scroll position).
+   *  Called after each successful render with the new index. */
+  onIndexChange?: (index: number) => void;
 }
 
 /** Navigation button references (DOM elements or CSS selectors) */

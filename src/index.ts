@@ -11,6 +11,7 @@ export class ChunkScrollTable<T = any> {
   private visibleCount: number = 15;
   private onLoading?: (isLoading: boolean) => void;
   private onError: (error: unknown) => void;
+  private onIndexChange?: (index: number) => void;
   private loadingDelay: number;
   private resizeHandler: (() => void) | null = null;
   private renderGeneration: number = 0;
@@ -25,6 +26,7 @@ export class ChunkScrollTable<T = any> {
 
     this.onLoading = options.onLoading;
     this.onError = options.onError ?? ((e) => console.error("[ChunkScrollTable]", e));
+    this.onIndexChange = options.onIndexChange;
     this.loadingDelay = options.loadingDelay ?? 120;
 
     // Initialize modules
@@ -71,11 +73,12 @@ export class ChunkScrollTable<T = any> {
     window.addEventListener("resize", this.resizeHandler);
   }
 
-  /** Load initial data and render the table */
-  async load(): Promise<void> {
+  /** Load initial data and render the table.
+   *  Optionally pass a startIndex to restore a saved scroll position. */
+  async load(startIndex: number = 0): Promise<void> {
     const spinnerTimer = this.showSpinnerDelayed();
     try {
-      this.currentIndex = 0;
+      this.currentIndex = startIndex;
       this.visibleCount = this.renderer.getVisibleRowCount();
       await this.renderView();
 
@@ -155,6 +158,7 @@ export class ChunkScrollTable<T = any> {
     this.renderer.render(entries);
     this.chunkManager.prefetchIfNeeded(this.currentIndex, this.visibleCount);
     this.navigation?.updateDisabled();
+    this.onIndexChange?.(this.currentIndex);
   }
 
   /** Show loading indicator with a delay */
